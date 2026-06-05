@@ -1,0 +1,6 @@
+{
+  "name": "EcoReflect AI",
+  "description": "An AI-powered sustainability awareness platform designed to address fast fashion and overconsumption under UN SDG 12.8.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
