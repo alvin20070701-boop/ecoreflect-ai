@@ -5,6 +5,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 import dotenv from 'dotenv';
 
 dotenv.config();
+dotenv.config({ path: path.join(process.cwd(), 'src', '.env') });
 
 const app = express();
 const PORT = 3000;
@@ -13,11 +14,18 @@ app.use(express.json());
 
 // Lazy-initialization utility for Gemini API to ensure no module-load-time crashes
 function getAiClient() {
-  const key = process.env.GEMINI_API_KEY;
+  let key = process.env.GEMINI_API_KEY;
   if (!key || key === 'MY_GEMINI_API_KEY' || key.trim() === '') {
     console.warn('GEMINI_API_KEY is not defined. Falling back to local offline generator.');
     return null;
   }
+
+  // Strip any accidental leading/trailing single or double quotes
+  key = key.trim();
+  if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+    key = key.slice(1, -1);
+  }
+
   return new GoogleGenAI({
     apiKey: key,
     httpOptions: {
@@ -102,7 +110,7 @@ Provide the output in valid, strict JSON matching this database structure:
 }`;
 
     const response = await client.models.generateContent({
-      model: 'gemini-3.5-flash',
+      model: 'gemini-flash-latest',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -181,7 +189,7 @@ app.post('/api/chat', async (req, res) => {
     }));
 
     const response = await client.models.generateContent({
-      model: 'gemini-3.5-flash',
+      model: 'gemini-flash-latest',
       contents: formattedContents,
       config: {
         systemInstruction: `You are the Sustainable Consumption Coach for the EcoReflect AI platform. 
